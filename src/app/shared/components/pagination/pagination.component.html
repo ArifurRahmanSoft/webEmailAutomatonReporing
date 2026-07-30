@@ -1,0 +1,43 @@
+@if (totalPages() > 1) {
+  <nav class="pagination" aria-label="Report pagination">
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="disabled() || page() === 1"
+      (click)="goToPage(page() - 1)"
+    >
+      <mat-icon aria-hidden="true">chevron_left</mat-icon>
+      Prev
+    </button>
+
+    <div class="pagination__pages" aria-label="Pages">
+      @for (pageItem of pages(); track $index) {
+        @if (pageItem === 'ellipsis') {
+          <span class="pagination__ellipsis" aria-hidden="true">...</span>
+        } @else {
+          <button
+            mat-button
+            type="button"
+            class="pagination__page"
+            [class.pagination__page--active]="pageItem === page()"
+            [disabled]="disabled()"
+            [attr.aria-current]="pageItem === page() ? 'page' : null"
+            (click)="goToPage(pageItem)"
+          >
+            {{ pageItem }}
+          </button>
+        }
+      }
+    </div>
+
+    <button
+      mat-stroked-button
+      type="button"
+      [disabled]="disabled() || page() === totalPages()"
+      (click)="goToPage(page() + 1)"
+    >
+      Next
+      <mat-icon aria-hidden="true">chevron_right</mat-icon>
+    </button>
+  </nav>
+}

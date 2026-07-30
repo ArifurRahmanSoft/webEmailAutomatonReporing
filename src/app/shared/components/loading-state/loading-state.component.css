@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+.loading-state {
+  align-items: center;
+  color: #64748b;
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  min-height: 24rem;
+}
+
+.loading-state span {
+  font-size: 0.95rem;
+  font-weight: 600;
+}

@@ -1,1 +1,22 @@
-/* You can add global styles to this file, and also import other style files */
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Icons+Round');
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: #f5f7fa;
+  font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
+}
+
+mat-icon {
+  font-family: 'Material Icons Round';
+  font-weight: normal;
+}

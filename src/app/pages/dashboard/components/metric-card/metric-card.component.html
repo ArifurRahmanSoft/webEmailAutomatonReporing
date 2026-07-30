@@ -1,0 +1,13 @@
+<mat-card class="metric-card" [class]="'metric-card--' + metric().tone" appearance="outlined">
+  <mat-card-content>
+    <div class="metric-card__icon">
+      <mat-icon aria-hidden="true">{{ metric().icon }}</mat-icon>
+    </div>
+
+    <div class="metric-card__content">
+      <span class="metric-card__label">{{ metric().title }}</span>
+      <strong>{{ metric().value }}</strong>
+      <span class="metric-card__description">{{ metric().description }}</span>
+    </div>
+  </mat-card-content>
+</mat-card>

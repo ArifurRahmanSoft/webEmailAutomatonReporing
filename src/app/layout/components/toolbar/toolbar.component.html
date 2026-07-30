@@ -1,0 +1,23 @@
+<header class="app-toolbar">
+  <button
+    mat-icon-button
+    type="button"
+    aria-label="Toggle sidebar"
+    title="Toggle sidebar"
+    (click)="toggleSidebar()"
+  >
+    <mat-icon aria-hidden="true">menu</mat-icon>
+  </button>
+
+  <span class="app-toolbar__title">Email Automation Reporting</span>
+
+  <span class="app-toolbar__spacer"></span>
+
+  <button class="app-toolbar__theme-toggle" type="button" disabled aria-label="Theme toggle placeholder">
+    <span class="app-toolbar__toggle-track">
+      <span class="app-toolbar__toggle-thumb"></span>
+    </span>
+    <span>Theme</span>
+  </button>
+  <span class="app-toolbar__version">{{ version }}</span>
+</header>

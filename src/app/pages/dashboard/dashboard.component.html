@@ -1,0 +1,45 @@
+<section class="dashboard-page">
+  <header class="dashboard-header">
+    <div>
+      <p class="dashboard-header__eyebrow">Email Automation</p>
+      <h1>Dashboard</h1>
+    </div>
+
+    <div class="dashboard-header__actions">
+      <div class="dashboard-header__refresh">
+        <span>Last Refresh</span>
+        <strong>{{ lastRefresh() ? (lastRefresh() | date: 'mediumTime') : 'Not refreshed' }}</strong>
+      </div>
+
+      <button mat-flat-button color="primary" type="button" [disabled]="isLoading()" (click)="refresh()">
+        @if (isLoading()) {
+          <mat-progress-spinner diameter="18" mode="indeterminate" />
+        } @else {
+          <mat-icon aria-hidden="true">refresh</mat-icon>
+        }
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading() && !statistics()) {
+    <app-loading-state label="Loading dashboard statistics" />
+  } @else if (errorMessage()) {
+    <mat-card class="dashboard-error" appearance="outlined">
+      <mat-card-content>
+        <mat-icon aria-hidden="true">error</mat-icon>
+        <h2>Unable to load dashboard</h2>
+        <p>{{ errorMessage() }}</p>
+        <button mat-flat-button color="primary" type="button" [disabled]="isLoading()" (click)="refresh()">
+          Retry
+        </button>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <div class="dashboard-grid" [class.dashboard-grid--refreshing]="isLoading()">
+      @for (metric of metrics(); track metric.title) {
+        <app-dashboard-metric-card [metric]="metric" />
+      }
+    </div>
+  }
+</section>

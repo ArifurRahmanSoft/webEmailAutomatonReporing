@@ -1,0 +1,237 @@
+<section class="report-page">
+  <header class="report-header">
+    <div>
+      <p class="report-header__eyebrow">Email Automation</p>
+      <h1>Reporting</h1>
+    </div>
+    <div class="report-header__meta">
+      <span>20 rows per page</span>
+      <strong>{{ totalRecords() }}</strong>
+      <span>Total records</span>
+    </div>
+  </header>
+
+  <form class="filters" [formGroup]="filterForm" (ngSubmit)="search()">
+    <div class="filters__dropdown-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Sender Mail</mat-label>
+        <mat-select formControlName="senderEmail">
+          <mat-option [value]="null">All</mat-option>
+          @for (senderEmail of filterOptions().sender_emails; track senderEmail) {
+            <mat-option [value]="senderEmail">{{ senderEmail }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>Project</mat-label>
+        <mat-select formControlName="projectName">
+          <mat-option [value]="null">All</mat-option>
+          @for (projectName of filterOptions().project_names; track projectName) {
+            <mat-option [value]="projectName">{{ projectName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @for (filter of booleanFilters; track filter.controlName) {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>{{ filter.label }}</mat-label>
+          <mat-select [formControlName]="filter.controlName">
+            @for (option of booleanOptions; track option.label) {
+              <mat-option [value]="option.value">{{ option.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+    </div>
+
+    <div class="filters__command-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>From Date</mat-label>
+        <input matInput [matDatepicker]="fromDatePicker" formControlName="fromDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="fromDatePicker" />
+        <mat-datepicker #fromDatePicker />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <mat-label>To Date</mat-label>
+        <input matInput [matDatepicker]="toDatePicker" formControlName="toDate" />
+        <mat-datepicker-toggle matIconSuffix [for]="toDatePicker" />
+        <mat-datepicker #toDatePicker />
+      </mat-form-field>
+
+      <div class="filters__actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            <mat-icon aria-hidden="true">search</mat-icon>
+          }
+          Search
+        </button>
+        <button mat-stroked-button type="button" [disabled]="isLoading()" (click)="reset()">
+          <mat-icon aria-hidden="true">restart_alt</mat-icon>
+          Reset
+        </button>
+        <button
+          mat-stroked-button
+          type="button"
+          [disabled]="isLoading() || isExporting()"
+          matTooltip="Download the filtered report as Excel"
+          (click)="downloadExcel()"
+        >
+          @if (isExporting()) {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            <mat-icon aria-hidden="true">download</mat-icon>
+          }
+          Download Excel
+        </button>
+      </div>
+    </div>
+  </form>
+
+  @if (filterValidationMessage()) {
+    <div class="state-banner state-banner--warning">
+      <mat-icon aria-hidden="true">info</mat-icon>
+      <span>{{ filterValidationMessage() }}</span>
+    </div>
+  }
+
+  @if (filterOptionsError()) {
+    <div class="state-banner state-banner--warning">
+      <mat-icon aria-hidden="true">warning</mat-icon>
+      <span>{{ filterOptionsError() }}</span>
+    </div>
+  }
+
+  <section class="report-table-section" aria-labelledby="report-table-title">
+    <div class="report-table-section__header">
+      <div>
+        <h2 id="report-table-title">Report</h2>
+        <span>{{ rangeLabel() }}</span>
+      </div>
+      @if (isLoading()) {
+        <mat-progress-spinner diameter="28" mode="indeterminate" />
+      }
+    </div>
+
+    <mat-divider />
+
+    @if (errorMessage()) {
+      <div class="state-panel">
+        <mat-icon aria-hidden="true">error</mat-icon>
+        <h3>Unable to load report</h3>
+        <p>{{ errorMessage() }}</p>
+        <button mat-flat-button color="primary" type="button" [disabled]="isLoading()" (click)="retryCurrentPage()">
+          Retry
+        </button>
+      </div>
+    } @else if (!isLoading() && rows().length === 0) {
+      <div class="state-panel">
+        <mat-icon aria-hidden="true">inbox</mat-icon>
+        <h3>No report records found</h3>
+        <p>Adjust the filters and search again.</p>
+      </div>
+    } @else {
+      <div class="table-shell" [class.table-shell--loading]="isLoading()">
+        <table mat-table [dataSource]="rows()" class="report-table">
+          <ng-container matColumnDef="sender">
+            <th mat-header-cell *matHeaderCellDef>Sender</th>
+            <td mat-cell *matCellDef="let item">{{ item.sender_email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="receiver">
+            <th mat-header-cell *matHeaderCellDef>Receiver</th>
+            <td mat-cell *matCellDef="let item">{{ item.receiver_email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="project">
+            <th mat-header-cell *matHeaderCellDef>Project</th>
+            <td mat-cell *matCellDef="let item">{{ item.project_name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="sendDate">
+            <th mat-header-cell *matHeaderCellDef>Send Date</th>
+            <td mat-cell *matCellDef="let item">{{ item.send_date | date: 'medium' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="open">
+            <th mat-header-cell *matHeaderCellDef>Open</th>
+            <td mat-cell *matCellDef="let item">
+              <app-status-badge
+                [active]="item.open_count > 0"
+                [count]="item.open_count"
+                activeIcon="visibility"
+                inactiveIcon="visibility_off"
+              />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="click">
+            <th mat-header-cell *matHeaderCellDef>Click</th>
+            <td mat-cell *matCellDef="let item">
+              <app-status-badge
+                [active]="item.click_count > 0"
+                [count]="item.click_count"
+                activeIcon="ads_click"
+                inactiveIcon="radio_button_unchecked"
+              />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="download">
+            <th mat-header-cell *matHeaderCellDef>Download</th>
+            <td mat-cell *matCellDef="let item">
+              <app-status-badge
+                [active]="item.download_count > 0"
+                [count]="item.download_count"
+                activeIcon="download_done"
+                inactiveIcon="download"
+              />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="reply">
+            <th mat-header-cell *matHeaderCellDef>Reply</th>
+            <td mat-cell *matCellDef="let item">
+              <app-status-badge
+                [active]="item.reply_count > 0"
+                [count]="item.reply_count"
+                activeIcon="reply"
+                inactiveIcon="mark_email_unread"
+              />
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="bounce">
+            <th mat-header-cell *matHeaderCellDef>Bounce</th>
+            <td mat-cell *matCellDef="let item">
+              <app-status-badge
+                [active]="item.is_bounce"
+                activeLabel="Yes"
+                inactiveLabel="No"
+                activeIcon="report"
+                inactiveIcon="check_circle"
+                tone="danger"
+              />
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+
+      <footer class="report-table-section__footer">
+        <span>{{ rangeLabel() }}</span>
+        <app-pagination
+          [page]="currentPage()"
+          [totalPages]="totalPages()"
+          [disabled]="isLoading()"
+          (pageChange)="onPageChange($event)"
+        />
+      </footer>
+    }
+  </section>
+</section>

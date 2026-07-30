@@ -1,0 +1,41 @@
+<aside class="sidebar" [class.sidebar--collapsed]="collapsed()">
+  <div class="sidebar__brand">
+    <span class="sidebar__brand-icon">
+      <mat-icon aria-hidden="true">mail</mat-icon>
+    </span>
+    <span class="sidebar__brand-text">
+      <strong>Email Automation</strong>
+      <span>Reporting</span>
+    </span>
+  </div>
+
+  <nav class="sidebar__nav" aria-label="Application navigation">
+    @for (item of menuItems; track item.label) {
+      @if (item.disabled) {
+        <span
+          class="sidebar__link sidebar__link--disabled"
+          [class.sidebar__link--active]="isActive(item)"
+          [title]="collapsed() ? item.label : ''"
+          aria-disabled="true"
+        >
+          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+          <span class="sidebar__label">{{ item.label }}</span>
+        </span>
+      } @else {
+        <a
+          class="sidebar__link"
+          [class.sidebar__link--active]="isActive(item)"
+          [routerLink]="item.route"
+          [title]="collapsed() ? item.label : ''"
+        >
+          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+          <span class="sidebar__label">{{ item.label }}</span>
+        </a>
+      }
+    }
+  </nav>
+
+  <div class="sidebar__footer">
+    <span>Version 2</span>
+  </div>
+</aside>
