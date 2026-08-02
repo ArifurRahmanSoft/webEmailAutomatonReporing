@@ -1,0 +1,90 @@
+<div class="user-dialog__header">
+  <span class="user-dialog__icon">
+    <mat-icon aria-hidden="true">{{ isEditing ? 'manage_accounts' : 'person_add' }}</mat-icon>
+  </span>
+  <div>
+    <h2 mat-dialog-title>{{ isEditing ? 'Edit User' : 'New User' }}</h2>
+    <p>{{ isEditing ? 'Update account access and credentials.' : 'Create a reporting account.' }}</p>
+  </div>
+  <button mat-icon-button type="button" mat-dialog-close aria-label="Close dialog" [disabled]="isSaving()">
+    <mat-icon aria-hidden="true">close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content>
+  @if (errorMessage()) {
+    <div class="user-dialog__error" role="alert">
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+
+  <form id="user-form" [formGroup]="userForm" (ngSubmit)="save()" novalidate>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>User ID</mat-label>
+      <input matInput formControlName="user_id" maxlength="20" autocomplete="off" />
+      <mat-hint align="end">{{ userForm.controls.user_id.value.length }}/20</mat-hint>
+      @if (userForm.controls.user_id.hasError('required')) {
+        <mat-error>User ID is required.</mat-error>
+      } @else if (userForm.controls.user_id.hasError('maxlength')) {
+        <mat-error>User ID cannot exceed 20 characters.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>{{ isEditing ? 'New Password' : 'Password' }}</mat-label>
+      <input
+        matInput
+        formControlName="password"
+        maxlength="20"
+        [type]="hidePassword() ? 'password' : 'text'"
+        autocomplete="new-password"
+      />
+      <button
+        mat-icon-button
+        matSuffix
+        type="button"
+        [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'"
+        (click)="togglePasswordVisibility()"
+      >
+        <mat-icon aria-hidden="true">{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+      </button>
+      @if (userForm.controls.password.hasError('required')) {
+        <mat-error>{{ isEditing ? 'Enter a password to save this update.' : 'Password is required.' }}</mat-error>
+      } @else if (userForm.controls.password.hasError('maxlength')) {
+        <mat-error>Password cannot exceed 20 characters.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role">
+        @for (role of roles; track role) {
+          <mat-option [value]="role">{{ role }}</mat-option>
+        }
+      </mat-select>
+      @if (userForm.controls.role.hasError('required')) {
+        <mat-error>Role is required.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (isEditing) {
+      <p class="user-dialog__note">
+        <mat-icon aria-hidden="true">info_outline</mat-icon>
+        Register and created dates are read-only and remain unchanged.
+      </p>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close [disabled]="isSaving()">Cancel</button>
+  <button mat-flat-button type="submit" form="user-form" [disabled]="isSaving()">
+    @if (isSaving()) {
+      <mat-spinner diameter="18" />
+      <span>Saving...</span>
+    } @else {
+      <span>{{ isEditing ? 'Update User' : 'Create User' }}</span>
+    }
+  </button>
+</mat-dialog-actions>

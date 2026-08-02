@@ -4,11 +4,14 @@ import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map, startWith } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 
+import { AuthService } from '../../../auth/auth.service';
+
 interface SidebarMenuItem {
   label: string;
   icon: string;
   route: string;
-  disabled: boolean;
+  adminOnly?: boolean;
+  children?: SidebarMenuItem[];
 }
 
 @Component({
@@ -19,15 +22,33 @@ interface SidebarMenuItem {
 })
 export class SidebarComponent {
   private readonly router = inject(Router);
+  protected readonly authService = inject(AuthService);
 
   readonly collapsed = input(false);
 
-  protected readonly menuItems: SidebarMenuItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', disabled: false },
-    { label: 'Reporting', icon: 'assessment', route: '/report', disabled: false },
-    { label: 'Settings', icon: 'settings', route: '', disabled: true },
-    { label: 'About', icon: 'info', route: '', disabled: true },
+  private readonly allMenuItems: SidebarMenuItem[] = [
+    { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
+    { label: 'Report', icon: 'assessment', route: '/report' },
+    {
+      label: 'Settings',
+      icon: 'settings',
+      route: '/settings',
+      adminOnly: true,
+      children: [
+        {
+          label: 'User Management',
+          icon: 'manage_accounts',
+          route: '/settings/user-management',
+          adminOnly: true,
+        },
+      ],
+    },
+    { label: 'About', icon: 'info', route: '/about', adminOnly: true },
   ];
+
+  protected readonly menuItems = computed(() =>
+    this.allMenuItems.filter((item) => !item.adminOnly || this.authService.isAdmin()),
+  );
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -38,18 +59,18 @@ export class SidebarComponent {
     { initialValue: this.router.url },
   );
 
-  protected readonly reportingActive = computed(() => {
-    const url = this.currentUrl();
-    return url.startsWith('/report') || url.startsWith('/pages/report');
-  });
-
-  protected readonly dashboardActive = computed(() => this.currentUrl().startsWith('/dashboard'));
-
   protected isActive(item: SidebarMenuItem): boolean {
-    if (item.label === 'Dashboard') {
-      return this.dashboardActive();
+    const url = this.currentUrl();
+
+    if (item.route === '/report') {
+      return url.startsWith('/report') || url.startsWith('/pages/report');
     }
 
-    return item.label === 'Reporting' && this.reportingActive();
+    return url.startsWith(item.route);
+  }
+
+  protected logout(): void {
+    this.authService.logout();
+    void this.router.navigateByUrl('/login');
   }
 }

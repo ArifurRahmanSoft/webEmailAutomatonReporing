@@ -10,32 +10,41 @@
   </div>
 
   <nav class="sidebar__nav" aria-label="Application navigation">
-    @for (item of menuItems; track item.label) {
-      @if (item.disabled) {
-        <span
-          class="sidebar__link sidebar__link--disabled"
-          [class.sidebar__link--active]="isActive(item)"
-          [title]="collapsed() ? item.label : ''"
-          aria-disabled="true"
-        >
-          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
-          <span class="sidebar__label">{{ item.label }}</span>
-        </span>
-      } @else {
-        <a
-          class="sidebar__link"
-          [class.sidebar__link--active]="isActive(item)"
-          [routerLink]="item.route"
-          [title]="collapsed() ? item.label : ''"
-        >
-          <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
-          <span class="sidebar__label">{{ item.label }}</span>
-        </a>
+    @for (item of menuItems(); track item.label) {
+      <a
+        class="sidebar__link"
+        [class.sidebar__link--active]="isActive(item)"
+        [routerLink]="item.route"
+        [title]="collapsed() ? item.label : ''"
+      >
+        <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+        <span class="sidebar__label">{{ item.label }}</span>
+        @if (item.children?.length && !collapsed()) {
+          <mat-icon class="sidebar__expand" aria-hidden="true">expand_more</mat-icon>
+        }
+      </a>
+
+      @if (item.children?.length && !collapsed()) {
+        <div class="sidebar__submenu">
+          @for (child of item.children; track child.label) {
+            <a
+              class="sidebar__link sidebar__link--child"
+              [class.sidebar__link--active]="isActive(child)"
+              [routerLink]="child.route"
+            >
+              <mat-icon aria-hidden="true">{{ child.icon }}</mat-icon>
+              <span class="sidebar__label">{{ child.label }}</span>
+            </a>
+          }
+        </div>
       }
     }
   </nav>
 
   <div class="sidebar__footer">
-    <span>Version 2</span>
+    <button class="sidebar__logout" type="button" (click)="logout()" [title]="collapsed() ? 'Logout' : ''">
+      <mat-icon aria-hidden="true">logout</mat-icon>
+      <span class="sidebar__label">Logout</span>
+    </button>
   </div>
 </aside>

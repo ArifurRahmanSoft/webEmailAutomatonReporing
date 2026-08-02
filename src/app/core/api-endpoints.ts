@@ -7,3 +7,9 @@ export const REPORT_API_ENDPOINTS = {
 export const DASHBOARD_API_ENDPOINTS = {
   statistics: '/api/dashboard/statistics',
 } as const;
+
+export const AUTH_API_ENDPOINTS = {
+  login: '/api/auth/login',
+  users: '/api/auth/users',
+  register: '/api/auth/register',
+} as const;

@@ -1,0 +1,91 @@
+<section class="user-management">
+  <header class="user-management__header">
+    <div>
+      <p class="user-management__eyebrow">Settings</p>
+      <h1>User Management</h1>
+      <p>Manage application access and reporting roles.</p>
+    </div>
+    <button mat-flat-button type="button" (click)="openCreateDialog()">
+      <mat-icon aria-hidden="true">person_add</mat-icon>
+      <span>New User</span>
+    </button>
+  </header>
+
+  <div class="user-management__panel">
+    <div class="user-management__panel-heading">
+      <div>
+        <h2>System Users</h2>
+        <p>{{ users().length }} {{ users().length === 1 ? 'account' : 'accounts' }}</p>
+      </div>
+      <button mat-icon-button type="button" aria-label="Refresh users" title="Refresh users" (click)="retry()" [disabled]="isLoading()">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+      </button>
+    </div>
+
+    @if (isLoading()) {
+      <div class="user-management__state" aria-live="polite">
+        <mat-spinner diameter="36" />
+        <span>Loading users...</span>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="user-management__state user-management__state--error" role="alert">
+        <mat-icon aria-hidden="true">cloud_off</mat-icon>
+        <strong>Unable to load users</strong>
+        <span>{{ errorMessage() }}</span>
+        <button mat-stroked-button type="button" (click)="retry()">Try Again</button>
+      </div>
+    } @else if (users().length === 0) {
+      <div class="user-management__state">
+        <mat-icon aria-hidden="true">group_off</mat-icon>
+        <strong>No users found</strong>
+        <span>Create a user to grant application access.</span>
+      </div>
+    } @else {
+      <div class="user-management__table-wrap">
+        <table mat-table [dataSource]="users()">
+          <ng-container matColumnDef="userId">
+            <th mat-header-cell *matHeaderCellDef>User ID</th>
+            <td mat-cell *matCellDef="let user">
+              <div class="user-management__identity">
+                <span>{{ user.user_id.charAt(0).toUpperCase() }}</span>
+                <strong>{{ user.user_id }}</strong>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>Role</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="user-management__role" [class.user-management__role--admin]="user.role === 'ADMIN'">
+                {{ user.role }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="registerDate">
+            <th mat-header-cell *matHeaderCellDef>Register Date</th>
+            <td mat-cell *matCellDef="let user">{{ user.register_date | date: 'MMM d, y, h:mm a' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="updatedDate">
+            <th mat-header-cell *matHeaderCellDef>Updated Date</th>
+            <td mat-cell *matCellDef="let user">{{ user.updated_at | date: 'MMM d, y, h:mm a' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef>Action</th>
+            <td mat-cell *matCellDef="let user">
+              <button mat-stroked-button type="button" (click)="openEditDialog(user)">
+                <mat-icon aria-hidden="true">edit</mat-icon>
+                <span>Edit</span>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    }
+  </div>
+</section>
