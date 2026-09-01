@@ -6,8 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
+import { AuthService } from '../../auth/auth.service';
 import { DashboardMetric, DashboardStatistics } from '../../models/dashboard.model';
 import { DashboardService } from '../../services/dashboard.service';
 import { LoadingStateComponent } from '../../shared/components/loading-state/loading-state.component';
@@ -29,8 +31,10 @@ import { MetricCardComponent } from './components/metric-card/metric-card.compon
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent implements OnInit {
+  private readonly authService = inject(AuthService);
   private readonly dashboardService = inject(DashboardService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly router = inject(Router);
 
   protected readonly statistics = signal<DashboardStatistics | null>(null);
   protected readonly lastRefresh = signal<Date | null>(null);
@@ -119,6 +123,11 @@ export class DashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    if (this.authService.hasRole('REPORT_VIEW')) {
+      void this.router.navigateByUrl('/client-dashboard');
+      return;
+    }
+
     this.loadStatistics();
   }
 
