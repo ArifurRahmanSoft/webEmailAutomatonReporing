@@ -11,6 +11,7 @@ interface SidebarMenuItem {
   icon: string;
   route: string;
   adminOnly?: boolean;
+  hideForReportView?: boolean;
   children?: SidebarMenuItem[];
 }
 
@@ -34,9 +35,17 @@ export class SidebarComponent {
 
   protected readonly showClientDashboard = computed(() => this.authService.hasRole('REPORT_VIEW'));
 
+  protected readonly clientReportMenuItem: SidebarMenuItem = {
+    label: 'Client Report',
+    icon: 'assessment',
+    route: '/client-report',
+  };
+
+  protected readonly showClientReport = computed(() => this.authService.hasRole('REPORT_VIEW'));
+
   private readonly allMenuItems: SidebarMenuItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', adminOnly: true },
-    { label: 'Report', icon: 'assessment', route: '/report' },
+    { label: 'Report', icon: 'assessment', route: '/report', hideForReportView: true },
     {
       label: 'Settings',
       icon: 'settings',
@@ -55,7 +64,11 @@ export class SidebarComponent {
   ];
 
   protected readonly menuItems = computed(() =>
-    this.allMenuItems.filter((item) => !item.adminOnly || this.authService.isAdmin()),
+    this.allMenuItems.filter(
+      (item) =>
+        (!item.adminOnly || this.authService.isAdmin()) &&
+        (!item.hideForReportView || !this.authService.hasRole('REPORT_VIEW')),
+    ),
   );
 
   private readonly currentUrl = toSignal(

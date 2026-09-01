@@ -12,6 +12,12 @@ export const CLIENT_DASHBOARD_API_ENDPOINTS = {
   dashboard: '/api/campaigns/client-dashboard',
 } as const;
 
+export const CLIENT_REPORT_API_ENDPOINTS = {
+  report: '/api/client-report',
+  export: '/api/client-report/export',
+  dropdownData: '/api/campaigns/client-dropdown-data',
+} as const;
+
 export const AUTH_API_ENDPOINTS = {
   login: '/api/auth/login',
   users: '/api/auth/users',

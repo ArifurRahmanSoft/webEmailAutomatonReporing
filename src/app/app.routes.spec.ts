@@ -22,4 +22,11 @@ describe('application routes', () => {
     expect(await reportRoute?.loadComponent?.()).toBeDefined();
     expect(await legacyReportRoute?.loadComponent?.()).toBeDefined();
   });
+
+  it('adds the Client Report route without replacing existing routes', async () => {
+    const route = childRoute('client-report');
+
+    expect(route).toBeDefined();
+    expect(await route?.loadComponent?.()).toBeDefined();
+  });
 });

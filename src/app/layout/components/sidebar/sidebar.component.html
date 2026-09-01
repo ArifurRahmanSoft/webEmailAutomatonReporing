@@ -22,6 +22,18 @@
       </a>
     }
 
+    @if (showClientReport()) {
+      <a
+        class="sidebar__link"
+        [class.sidebar__link--active]="isActive(clientReportMenuItem)"
+        [routerLink]="clientReportMenuItem.route"
+        [title]="collapsed() ? clientReportMenuItem.label : ''"
+      >
+        <mat-icon aria-hidden="true">{{ clientReportMenuItem.icon }}</mat-icon>
+        <span class="sidebar__label">{{ clientReportMenuItem.label }}</span>
+      </a>
+    }
+
     @for (item of menuItems(); track item.label) {
       <a
         class="sidebar__link"

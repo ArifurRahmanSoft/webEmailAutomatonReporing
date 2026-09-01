@@ -7,7 +7,7 @@ import { SidebarComponent } from './sidebar.component';
 
 describe('SidebarComponent role visibility', () => {
   const isAdmin = signal(false);
-  const role = signal<'ADMIN' | 'REPORT_VIEW'>('REPORT_VIEW');
+  const role = signal<'ADMIN' | 'REPORT_VIEW' | 'OTHER'>('REPORT_VIEW');
   let fixture: ComponentFixture<SidebarComponent>;
 
   const menuLabels = () =>
@@ -68,9 +68,34 @@ describe('SidebarComponent role visibility', () => {
     expect(menuLink('Dashboard')?.getAttribute('href')).toBe('/dashboard');
   });
 
-  it('keeps Report visible with its existing route for non-admin users', () => {
+  it('shows Report for ADMIN and hides it for REPORT_VIEW', () => {
+    expect(menuLabels()).not.toContain('Report');
+
+    role.set('ADMIN');
+    isAdmin.set(true);
+    fixture.detectChanges();
+
     expect(menuLabels()).toContain('Report');
     expect(menuLink('Report')?.getAttribute('href')).toBe('/report');
+  });
+
+  it('shows Client Report only for REPORT_VIEW', () => {
+    expect(menuLabels()).toContain('Client Report');
+    expect(menuLink('Client Report')?.getAttribute('href')).toBe('/client-report');
+
+    role.set('ADMIN');
+    isAdmin.set(true);
+    fixture.detectChanges();
+
+    expect(menuLabels()).not.toContain('Client Report');
+  });
+
+  it('keeps Report behavior unchanged for other roles', () => {
+    role.set('OTHER');
+    fixture.detectChanges();
+
+    expect(menuLabels()).toContain('Report');
+    expect(menuLabels()).not.toContain('Client Report');
   });
 
   it('keeps the existing visibility rules for all other menus', () => {
