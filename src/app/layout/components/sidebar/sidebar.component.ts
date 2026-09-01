@@ -49,7 +49,7 @@ export class SidebarComponent {
     {
       label: 'Settings',
       icon: 'settings',
-      route: '/settings',
+      route: '/settings/user-management',
       adminOnly: true,
       children: [
         {

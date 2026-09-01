@@ -26,6 +26,7 @@ describe('authentication guards', () => {
           provide: AuthService,
           useValue: {
             isAuthenticated: () => authenticated,
+            isAdmin: () => role === 'ADMIN',
             hasRole: (requiredRole: UserRole) => role === requiredRole,
           },
         },

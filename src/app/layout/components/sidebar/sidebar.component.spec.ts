@@ -31,7 +31,11 @@ describe('SidebarComponent role visibility', () => {
     await TestBed.configureTestingModule({
       imports: [SidebarComponent],
       providers: [
-        provideRouter([{ path: 'pages/report', component: TestReportComponent }]),
+        provideRouter([
+          { path: 'pages/report', component: TestReportComponent },
+          { path: 'settings/user-management', component: TestReportComponent },
+          { path: 'about', component: TestReportComponent },
+        ]),
         {
           provide: AuthService,
           useValue: {
@@ -91,6 +95,33 @@ describe('SidebarComponent role visibility', () => {
     await fixture.whenStable();
 
     expect(TestBed.inject(Router).url).toBe('/pages/report');
+  });
+
+  it.each(['Settings', 'User Management'])(
+    'navigates ADMIN users to User Management when %s is clicked',
+    async (label) => {
+      role.set('ADMIN');
+      isAdmin.set(true);
+      fixture.detectChanges();
+
+      expect(menuLink(label)?.getAttribute('href')).toBe('/settings/user-management');
+      menuLink(label)?.click();
+      await fixture.whenStable();
+
+      expect(TestBed.inject(Router).url).toBe('/settings/user-management');
+    },
+  );
+
+  it('navigates ADMIN users to About when clicked', async () => {
+    role.set('ADMIN');
+    isAdmin.set(true);
+    fixture.detectChanges();
+
+    expect(menuLink('About')?.getAttribute('href')).toBe('/about');
+    menuLink('About')?.click();
+    await fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/about');
   });
 
   it('shows Client Report only for REPORT_VIEW', () => {
