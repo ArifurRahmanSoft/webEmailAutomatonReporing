@@ -35,13 +35,55 @@ describe('ClientReportService', () => {
   afterEach(() => httpController.verify());
 
   it('uses the client report URL with logged-in client_code and server pagination', () => {
-    service.getClientReport('08427', { ...emptyFilters(), page: 1, perPage: 20 }).subscribe();
+    let loadedItems = 0;
+    service
+      .getClientReport('08427', { ...emptyFilters(), page: 1, perPage: 20 })
+      .subscribe((response) => (loadedItems = response.items.length));
 
     const request = httpController.expectOne(
       `${environment.apiUrl}/api/client-report?client_code=08427&page=1&per_page=20`,
     );
     expect(request.request.method).toBe('GET');
-    request.flush({ items: [] });
+    request.flush({
+      data: [
+        {
+          tracking_id: 'track-08427',
+          sender_email: 'sender@example.com',
+          receiver_email: 'receiver@example.com',
+          project_name: 'PC014',
+          send_date: '2026-09-01T10:00:00Z',
+          open_count: 1,
+          click_count: 0,
+          download_count: 0,
+          reply_count: 0,
+          is_bounce: false,
+        },
+      ],
+      pagination: { page: 1, per_page: 20, total: 1, pages: 1 },
+    });
+    expect(loadedItems).toBe(1);
+  });
+
+  it('keeps the existing Report items response structure compatible', () => {
+    let totalRecords = 0;
+    service
+      .getClientReport('08427', { ...emptyFilters(), page: 1, perPage: 20 })
+      .subscribe((response) => (totalRecords = response.total_records));
+
+    const request = httpController.expectOne((candidate) =>
+      candidate.url.endsWith('/api/client-report'),
+    );
+    request.flush({
+      page: 1,
+      page_size: 20,
+      total_records: 25,
+      total_pages: 2,
+      has_next_page: true,
+      has_previous_page: false,
+      items: [],
+    });
+
+    expect(totalRecords).toBe(25);
   });
 
   it('uses the client dropdown URL with client_code', () => {

@@ -1,4 +1,4 @@
-import { ReportResponse } from './report.model';
+import { ReportItem, ReportResponse } from './report.model';
 
 export interface ClientCampaignOption {
   campaign_code: string;
@@ -31,3 +31,35 @@ export interface ClientReportQuery extends ClientReportFilters {
 }
 
 export type ClientReportResponse = ReportResponse;
+
+export interface ClientReportPagination {
+  page?: number;
+  per_page?: number;
+  page_size?: number;
+  total?: number;
+  total_records?: number;
+  pages?: number;
+  total_pages?: number;
+  has_next?: boolean;
+  has_previous?: boolean;
+  has_next_page?: boolean;
+  has_previous_page?: boolean;
+}
+
+export interface ClientReportDataEnvelope extends ClientReportPagination {
+  items?: ReportItem[];
+  data?: ReportItem[];
+  records?: ReportItem[];
+  results?: ReportItem[];
+  reports?: ReportItem[];
+  pagination?: ClientReportPagination;
+}
+
+export interface ClientReportApiResponse extends ClientReportPagination {
+  items?: ReportItem[];
+  data?: ReportItem[] | ClientReportDataEnvelope;
+  records?: ReportItem[];
+  results?: ReportItem[];
+  reports?: ReportItem[];
+  pagination?: ClientReportPagination;
+}

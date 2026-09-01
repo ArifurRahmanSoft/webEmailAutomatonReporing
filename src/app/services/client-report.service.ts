@@ -1,10 +1,12 @@
 import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 import { CLIENT_REPORT_API_ENDPOINTS } from '../core/api-endpoints';
 import {
+  ClientReportApiResponse,
+  ClientReportDataEnvelope,
   ClientReportDropdownData,
   ClientReportFilters,
   ClientReportQuery,
@@ -17,10 +19,11 @@ export class ClientReportService {
   private readonly apiUrl = environment.apiUrl;
 
   getClientReport(clientCode: string, query: ClientReportQuery): Observable<ClientReportResponse> {
-    return this.http.get<ClientReportResponse>(
-      `${this.apiUrl}${CLIENT_REPORT_API_ENDPOINTS.report}`,
-      { params: this.buildParams(clientCode, query) },
-    );
+    return this.http
+      .get<ClientReportApiResponse>(`${this.apiUrl}${CLIENT_REPORT_API_ENDPOINTS.report}`, {
+        params: this.buildParams(clientCode, query),
+      })
+      .pipe(map((response) => this.normalizeResponse(response, query)));
   }
 
   getDropdownData(clientCode: string): Observable<ClientReportDropdownData> {
@@ -81,6 +84,80 @@ export class ClientReportService {
     params = this.setBooleanParam(params, 'is_unsubscribe', filters.isUnsubscribe);
 
     return params;
+  }
+
+  private normalizeResponse(
+    response: ClientReportApiResponse,
+    query: ClientReportQuery,
+  ): ClientReportResponse {
+    const nestedData = !response.data || Array.isArray(response.data) ? null : response.data;
+    const pagination = response.pagination ?? nestedData?.pagination;
+    const items = this.resolveItems(response, nestedData);
+    const page = response.page ?? nestedData?.page ?? pagination?.page ?? query.page;
+    const pageSize =
+      response.page_size ??
+      response.per_page ??
+      nestedData?.page_size ??
+      nestedData?.per_page ??
+      pagination?.page_size ??
+      pagination?.per_page ??
+      query.perPage;
+    const totalRecords =
+      response.total_records ??
+      response.total ??
+      nestedData?.total_records ??
+      nestedData?.total ??
+      pagination?.total_records ??
+      pagination?.total ??
+      items.length;
+    const totalPages =
+      response.total_pages ??
+      response.pages ??
+      nestedData?.total_pages ??
+      nestedData?.pages ??
+      pagination?.total_pages ??
+      pagination?.pages ??
+      (totalRecords === 0 ? 0 : Math.ceil(totalRecords / pageSize));
+
+    return {
+      page,
+      page_size: pageSize,
+      total_records: totalRecords,
+      total_pages: totalPages,
+      has_next_page:
+        response.has_next_page ??
+        pagination?.has_next_page ??
+        pagination?.has_next ??
+        page < totalPages,
+      has_previous_page:
+        response.has_previous_page ??
+        pagination?.has_previous_page ??
+        pagination?.has_previous ??
+        page > 1,
+      items,
+    };
+  }
+
+  private resolveItems(
+    response: ClientReportApiResponse,
+    nestedData: ClientReportDataEnvelope | null,
+  ): ClientReportResponse['items'] {
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+
+    return (
+      response.items ??
+      response.records ??
+      response.results ??
+      response.reports ??
+      nestedData?.items ??
+      nestedData?.data ??
+      nestedData?.records ??
+      nestedData?.results ??
+      nestedData?.reports ??
+      []
+    );
   }
 
   private setBooleanParam(params: HttpParams, key: string, value: boolean | null): HttpParams {
