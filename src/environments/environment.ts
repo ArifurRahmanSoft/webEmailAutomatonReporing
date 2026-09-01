@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://emailtrackingserver-v2-2.onrender.com',
+  apiUrl: 'https://osmanhadioutreach.powersalesautomation.com',
 } as const;
