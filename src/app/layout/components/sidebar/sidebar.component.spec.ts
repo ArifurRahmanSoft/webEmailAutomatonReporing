@@ -9,6 +9,18 @@ describe('SidebarComponent role visibility', () => {
   const isAdmin = signal(false);
   let fixture: ComponentFixture<SidebarComponent>;
 
+  const menuLabels = () =>
+    Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
+        '.sidebar__nav .sidebar__label',
+      ),
+    ).map((element) => element.textContent?.trim() ?? '');
+
+  const menuLink = (label: string) =>
+    Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLAnchorElement>('.sidebar__nav a'),
+    ).find((link) => link.querySelector('.sidebar__label')?.textContent?.trim() === label);
+
   beforeEach(async () => {
     isAdmin.set(false);
     await TestBed.configureTestingModule({
@@ -29,26 +41,37 @@ describe('SidebarComponent role visibility', () => {
     fixture.detectChanges();
   });
 
-  it('hides Settings and About for REPORT_VIEW users', () => {
-    const text = fixture.nativeElement.textContent;
-
-    expect(text).toContain('Dashboard');
-    expect(text).toContain('Report');
-    expect(text).not.toContain('Settings');
-    expect(text).not.toContain('User Management');
-    expect(text).not.toContain('About');
+  it('hides Dashboard for REPORT_VIEW users', () => {
+    expect(menuLabels()).not.toContain('Dashboard');
   });
 
-  it('shows all menus and the Settings submenu for ADMIN users', () => {
+  it('shows Dashboard for ADMIN users with its existing route', () => {
     isAdmin.set(true);
     fixture.detectChanges();
-    const text = fixture.nativeElement.textContent;
 
-    expect(text).toContain('Dashboard');
-    expect(text).toContain('Report');
-    expect(text).toContain('Settings');
-    expect(text).toContain('User Management');
-    expect(text).toContain('About');
-    expect(text).toContain('Logout');
+    expect(menuLabels()).toContain('Dashboard');
+    expect(menuLink('Dashboard')?.getAttribute('href')).toBe('/dashboard');
+  });
+
+  it('keeps Report visible with its existing route for non-admin users', () => {
+    expect(menuLabels()).toContain('Report');
+    expect(menuLink('Report')?.getAttribute('href')).toBe('/report');
+  });
+
+  it('keeps the existing visibility rules for all other menus', () => {
+    expect(menuLabels()).not.toContain('Settings');
+    expect(menuLabels()).not.toContain('User Management');
+    expect(menuLabels()).not.toContain('About');
+
+    isAdmin.set(true);
+    fixture.detectChanges();
+
+    expect(menuLabels()).toEqual([
+      'Dashboard',
+      'Report',
+      'Settings',
+      'User Management',
+      'About',
+    ]);
   });
 });

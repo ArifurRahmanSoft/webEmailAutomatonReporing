@@ -27,7 +27,7 @@ export class SidebarComponent {
   readonly collapsed = input(false);
 
   private readonly allMenuItems: SidebarMenuItem[] = [
-    { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
+    { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', adminOnly: true },
     { label: 'Report', icon: 'assessment', route: '/report' },
     {
       label: 'Settings',
