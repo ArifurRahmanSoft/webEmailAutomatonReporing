@@ -19,6 +19,13 @@ export const adminGuard: CanActivateFn = () => {
   return authService.hasRole('ADMIN') ? true : router.createUrlTree(['/dashboard']);
 };
 
+export const dashboardGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router = inject(Router);
+
+  return authService.hasRole('REPORT_VIEW') ? router.createUrlTree(['/client-dashboard']) : true;
+};
+
 export const loginGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);

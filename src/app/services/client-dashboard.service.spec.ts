@@ -20,14 +20,14 @@ describe('ClientDashboardService', () => {
   afterEach(() => httpController.verify());
 
   it('uses the client dashboard endpoint and sends client_code as a query parameter', () => {
-    service.getClientDashboard('arif@gmail.com').subscribe();
+    service.getClientDashboard('08427').subscribe();
 
     const request = httpController.expectOne(
-      `${environment.apiUrl}/api/campaigns/client-dashboard?client_code=arif@gmail.com`,
+      `${environment.apiUrl}/api/campaigns/client-dashboard?client_code=08427`,
     );
 
     expect(request.request.method).toBe('GET');
-    expect(request.request.params.get('client_code')).toBe('arif@gmail.com');
+    expect(request.request.params.get('client_code')).toBe('08427');
     request.flush({});
   });
 });

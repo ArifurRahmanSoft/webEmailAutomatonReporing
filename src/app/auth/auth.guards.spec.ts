@@ -7,7 +7,7 @@ import {
   UrlTree,
 } from '@angular/router';
 
-import { adminGuard, authGuard, loginGuard } from './auth.guards';
+import { adminGuard, authGuard, dashboardGuard, loginGuard } from './auth.guards';
 import { AuthService } from './auth.service';
 import { UserRole } from './auth.models';
 
@@ -66,6 +66,24 @@ describe('authentication guards', () => {
     );
 
     expect(result).toBe(true);
+  });
+
+  it('allows ADMIN users to load the standard Dashboard', () => {
+    role = 'ADMIN';
+    const result = TestBed.runInInjectionContext(() =>
+      dashboardGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    );
+
+    expect(result).toBe(true);
+  });
+
+  it('redirects REPORT_VIEW users away from the standard Dashboard', () => {
+    role = 'REPORT_VIEW';
+    const result = TestBed.runInInjectionContext(() =>
+      dashboardGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    ) as UrlTree;
+
+    expect(router.serializeUrl(result)).toBe('/client-dashboard');
   });
 
   it('redirects authenticated ADMIN users to Dashboard', () => {

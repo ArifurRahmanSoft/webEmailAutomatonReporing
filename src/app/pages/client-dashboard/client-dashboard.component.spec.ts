@@ -25,7 +25,7 @@ describe('ClientDashboardComponent', () => {
   };
 
   const session = signal({
-    user_id: 'arif@gmail.com',
+    user_id: '08427',
     role: 'REPORT_VIEW' as const,
     register_date: '2026-08-01T10:00:00Z',
   });
@@ -62,7 +62,7 @@ describe('ClientDashboardComponent', () => {
   it('uses the logged-in user_id as client_code and loads dashboard data', () => {
     fixture.detectChanges();
 
-    expect(getClientDashboard).toHaveBeenCalledExactlyOnceWith('arif@gmail.com');
+    expect(getClientDashboard).toHaveBeenCalledExactlyOnceWith('08427');
     expect(pageText()).toContain('Client Dashboard');
     expect(pageText()).toContain('PC014');
     expect(pageText()).toContain('PC020');
