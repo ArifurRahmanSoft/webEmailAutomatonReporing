@@ -45,7 +45,7 @@ export class SidebarComponent {
 
   private readonly allMenuItems: SidebarMenuItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', adminOnly: true },
-    { label: 'Report', icon: 'assessment', route: '/report', hideForReportView: true },
+    { label: 'Report', icon: 'assessment', route: '/pages/report', hideForReportView: true },
     {
       label: 'Settings',
       icon: 'settings',
@@ -83,7 +83,7 @@ export class SidebarComponent {
   protected isActive(item: SidebarMenuItem): boolean {
     const url = this.currentUrl();
 
-    if (item.route === '/report') {
+    if (item.route === '/pages/report') {
       return url.startsWith('/report') || url.startsWith('/pages/report');
     }
 

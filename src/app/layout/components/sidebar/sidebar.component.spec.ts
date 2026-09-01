@@ -1,9 +1,12 @@
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 
 import { AuthService } from '../../../auth/auth.service';
 import { SidebarComponent } from './sidebar.component';
+
+@Component({ template: '' })
+class TestReportComponent {}
 
 describe('SidebarComponent role visibility', () => {
   const isAdmin = signal(false);
@@ -28,7 +31,7 @@ describe('SidebarComponent role visibility', () => {
     await TestBed.configureTestingModule({
       imports: [SidebarComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([{ path: 'pages/report', component: TestReportComponent }]),
         {
           provide: AuthService,
           useValue: {
@@ -76,7 +79,18 @@ describe('SidebarComponent role visibility', () => {
     fixture.detectChanges();
 
     expect(menuLabels()).toContain('Report');
-    expect(menuLink('Report')?.getAttribute('href')).toBe('/report');
+    expect(menuLink('Report')?.getAttribute('href')).toBe('/pages/report');
+  });
+
+  it('navigates ADMIN users to the canonical Report route when clicked', async () => {
+    role.set('ADMIN');
+    isAdmin.set(true);
+    fixture.detectChanges();
+
+    menuLink('Report')?.click();
+    await fixture.whenStable();
+
+    expect(TestBed.inject(Router).url).toBe('/pages/report');
   });
 
   it('shows Client Report only for REPORT_VIEW', () => {
