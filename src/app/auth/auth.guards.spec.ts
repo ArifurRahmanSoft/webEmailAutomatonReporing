@@ -1,17 +1,24 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRouteSnapshot, provideRouter, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
+import {
+  ActivatedRouteSnapshot,
+  provideRouter,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
 
 import { adminGuard, authGuard, loginGuard } from './auth.guards';
 import { AuthService } from './auth.service';
+import { UserRole } from './auth.models';
 
 describe('authentication guards', () => {
   let authenticated = false;
-  let admin = false;
+  let role: UserRole = 'REPORT_VIEW';
   let router: Router;
 
   beforeEach(() => {
     authenticated = false;
-    admin = false;
+    role = 'REPORT_VIEW';
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
@@ -19,7 +26,7 @@ describe('authentication guards', () => {
           provide: AuthService,
           useValue: {
             isAuthenticated: () => authenticated,
-            hasRole: () => admin,
+            hasRole: (requiredRole: UserRole) => role === requiredRole,
           },
         },
       ],
@@ -53,7 +60,7 @@ describe('authentication guards', () => {
   });
 
   it('allows admins into admin routes', () => {
-    admin = true;
+    role = 'ADMIN';
     const result = TestBed.runInInjectionContext(() =>
       adminGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
     );
@@ -61,12 +68,23 @@ describe('authentication guards', () => {
     expect(result).toBe(true);
   });
 
-  it('redirects authenticated users away from the login page', () => {
+  it('redirects authenticated ADMIN users to Dashboard', () => {
     authenticated = true;
+    role = 'ADMIN';
     const result = TestBed.runInInjectionContext(() =>
       loginGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
     ) as UrlTree;
 
     expect(router.serializeUrl(result)).toBe('/dashboard');
+  });
+
+  it('redirects authenticated REPORT_VIEW users to Client Dashboard', () => {
+    authenticated = true;
+    role = 'REPORT_VIEW';
+    const result = TestBed.runInInjectionContext(() =>
+      loginGuard({} as ActivatedRouteSnapshot, {} as RouterStateSnapshot),
+    ) as UrlTree;
+
+    expect(router.serializeUrl(result)).toBe('/client-dashboard');
   });
 });
