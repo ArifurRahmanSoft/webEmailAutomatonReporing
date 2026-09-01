@@ -35,22 +35,20 @@ describe('ClientReportService', () => {
   afterEach(() => httpController.verify());
 
   it('uses the client report URL with logged-in client_code and server pagination', () => {
-    service
-      .getClientReport('arif@gmail.com', { ...emptyFilters(), page: 1, perPage: 20 })
-      .subscribe();
+    service.getClientReport('08427', { ...emptyFilters(), page: 1, perPage: 20 }).subscribe();
 
     const request = httpController.expectOne(
-      `${environment.apiUrl}/api/client-report?client_code=arif@gmail.com&page=1&per_page=20`,
+      `${environment.apiUrl}/api/client-report?client_code=08427&page=1&per_page=20`,
     );
     expect(request.request.method).toBe('GET');
     request.flush({ items: [] });
   });
 
   it('uses the client dropdown URL with client_code', () => {
-    service.getDropdownData('arif@gmail.com').subscribe();
+    service.getDropdownData('08427').subscribe();
 
     const request = httpController.expectOne(
-      `${environment.apiUrl}/api/campaigns/client-dropdown-data?client_code=arif@gmail.com`,
+      `${environment.apiUrl}/api/campaigns/client-dropdown-data?client_code=08427`,
     );
     expect(request.request.method).toBe('GET');
     request.flush({ campaigns: [], projects: [], sender_emails: [] });
@@ -58,7 +56,7 @@ describe('ClientReportService', () => {
 
   it('maps campaign, project, sender, boolean, and date filters to API parameters', () => {
     service
-      .getClientReport('arif@gmail.com', {
+      .getClientReport('08427', {
         ...emptyFilters(),
         senderMail: 'sender@gmail.com',
         project: 'PC014',
@@ -81,7 +79,7 @@ describe('ClientReportService', () => {
     );
     const params = request.request.params;
 
-    expect(params.get('client_code')).toBe('arif@gmail.com');
+    expect(params.get('client_code')).toBe('08427');
     expect(params.get('sender_mail')).toBe('sender@gmail.com');
     expect(params.get('project')).toBe('PC014');
     expect(params.get('campaign_code')).toBe('PC014');
@@ -100,14 +98,14 @@ describe('ClientReportService', () => {
 
   it('downloads from the client export URL with client_code and selected filters', () => {
     service
-      .downloadExcel('arif@gmail.com', {
+      .downloadExcel('08427', {
         ...emptyFilters(),
         campaignCode: 'PC014',
       })
       .subscribe();
 
     const request = httpController.expectOne(
-      `${environment.apiUrl}/api/client-report/export?client_code=arif@gmail.com&campaign_code=PC014`,
+      `${environment.apiUrl}/api/client-report/export?client_code=08427&campaign_code=PC014`,
     );
     expect(request.request.method).toBe('GET');
     expect(request.request.responseType).toBe('blob');

@@ -20,7 +20,7 @@ interface ClientReportTestAccess {
 
 describe('ClientReportComponent', () => {
   const session = signal({
-    user_id: 'arif@gmail.com',
+    user_id: '08427',
     role: 'REPORT_VIEW' as const,
     register_date: '2026-08-01T10:00:00Z',
   });
@@ -53,6 +53,11 @@ describe('ClientReportComponent', () => {
   let component: ClientReportTestAccess;
 
   beforeEach(async () => {
+    session.set({
+      user_id: '08427',
+      role: 'REPORT_VIEW',
+      register_date: '2026-08-01T10:00:00Z',
+    });
     getClientReport.mockReset();
     getDropdownData.mockReset();
     downloadExcel.mockReset();
@@ -84,9 +89,9 @@ describe('ClientReportComponent', () => {
   it('loads dropdowns and the first report page using logged-in user_id as client_code', () => {
     fixture.detectChanges();
 
-    expect(getDropdownData).toHaveBeenCalledExactlyOnceWith('arif@gmail.com');
+    expect(getDropdownData).toHaveBeenCalledExactlyOnceWith('08427');
     expect(getClientReport).toHaveBeenCalledWith(
-      'arif@gmail.com',
+      '08427',
       expect.objectContaining({ page: 1, perPage: 20 }),
     );
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('receiver@gmail.com');
@@ -127,7 +132,7 @@ describe('ClientReportComponent', () => {
 
     component.search();
 
-    expect(getClientReport).toHaveBeenLastCalledWith('arif@gmail.com', {
+    expect(getClientReport).toHaveBeenLastCalledWith('08427', {
       senderMail: 'sender@gmail.com',
       project: 'PC014',
       campaignCode: 'PC014',
@@ -164,7 +169,7 @@ describe('ClientReportComponent', () => {
       isUnsubscribe: null,
     });
     expect(getClientReport).toHaveBeenLastCalledWith(
-      'arif@gmail.com',
+      '08427',
       expect.objectContaining({ page: 1, perPage: 20, campaignCode: null }),
     );
   });
@@ -175,7 +180,7 @@ describe('ClientReportComponent', () => {
     component.onPageChange(2);
 
     expect(getClientReport).toHaveBeenLastCalledWith(
-      'arif@gmail.com',
+      '08427',
       expect.objectContaining({ page: 2, perPage: 20 }),
     );
   });
@@ -187,7 +192,7 @@ describe('ClientReportComponent', () => {
     component.downloadExcel();
 
     expect(downloadExcel).toHaveBeenCalledWith(
-      'arif@gmail.com',
+      '08427',
       expect.objectContaining({
         campaignCode: 'PC014',
         project: 'PC014',
@@ -200,6 +205,22 @@ describe('ClientReportComponent', () => {
 
     fixture.detectChanges();
 
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'Unable to load client report data.',
+    );
+  });
+
+  it('does not call client APIs when the logged-in user_id is missing', () => {
+    session.set({
+      user_id: '',
+      role: 'REPORT_VIEW',
+      register_date: '2026-08-01T10:00:00Z',
+    });
+
+    fixture.detectChanges();
+
+    expect(getDropdownData).not.toHaveBeenCalled();
+    expect(getClientReport).not.toHaveBeenCalled();
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'Unable to load client report data.',
     );

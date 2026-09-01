@@ -141,6 +141,7 @@ export class ClientReportComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly filterOptionsError = signal<string | null>(null);
   protected readonly filterValidationMessage = signal<string | null>(null);
+  private readonly clientCode = signal<string | null>(null);
 
   protected readonly rows = computed(() => this.report()?.items ?? []);
   protected readonly totalPages = computed(() => this.report()?.total_pages ?? 0);
@@ -162,13 +163,16 @@ export class ClientReportComponent implements OnInit {
       this.filterValidationMessage.set(null);
     });
 
-    const clientCode = this.clientCode();
+    const loggedInUser = this.authService.session();
+    const userId = loggedInUser?.user_id;
+    const clientCode = typeof userId === 'string' ? userId.trim() : '';
 
     if (!clientCode) {
       this.errorMessage.set('Unable to load client report data.');
       return;
     }
 
+    this.clientCode.set(clientCode);
     this.loadDropdownData(clientCode);
     this.loadReport(clientCode, 1);
   }
@@ -227,10 +231,6 @@ export class ClientReportComponent implements OnInit {
         next: (response) => this.saveExcelResponse(response),
         error: () => this.errorMessage.set('Unable to download client report data.'),
       });
-  }
-
-  private clientCode(): string | null {
-    return this.authService.session()?.user_id ?? null;
   }
 
   private loadDropdownData(clientCode: string): void {
