@@ -26,6 +26,14 @@ export class SidebarComponent {
 
   readonly collapsed = input(false);
 
+  protected readonly clientDashboardMenuItem: SidebarMenuItem = {
+    label: 'Client Dashboard',
+    icon: 'space_dashboard',
+    route: '/client-dashboard',
+  };
+
+  protected readonly showClientDashboard = computed(() => this.authService.hasRole('REPORT_VIEW'));
+
   private readonly allMenuItems: SidebarMenuItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/dashboard', adminOnly: true },
     { label: 'Report', icon: 'assessment', route: '/report' },

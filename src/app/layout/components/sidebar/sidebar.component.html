@@ -10,6 +10,18 @@
   </div>
 
   <nav class="sidebar__nav" aria-label="Application navigation">
+    @if (showClientDashboard()) {
+      <a
+        class="sidebar__link"
+        [class.sidebar__link--active]="isActive(clientDashboardMenuItem)"
+        [routerLink]="clientDashboardMenuItem.route"
+        [title]="collapsed() ? clientDashboardMenuItem.label : ''"
+      >
+        <mat-icon aria-hidden="true">{{ clientDashboardMenuItem.icon }}</mat-icon>
+        <span class="sidebar__label">{{ clientDashboardMenuItem.label }}</span>
+      </a>
+    }
+
     @for (item of menuItems(); track item.label) {
       <a
         class="sidebar__link"

@@ -68,7 +68,8 @@ export class LoginComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: () => void this.router.navigateByUrl('/dashboard'),
+        next: () =>
+         void this.router.navigateByUrl('/dashboard'),
         error: (error: unknown) => {
           this.errorMessage.set(this.resolveLoginError(error));
           this.loginForm.controls.password.reset();

@@ -29,6 +29,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'client-dashboard',
+        loadComponent: () =>
+          import('./pages/client-dashboard/client-dashboard.component').then(
+            (component) => component.ClientDashboardComponent,
+          ),
+      },
+      {
         path: 'pages/report',
         loadComponent: () =>
           import('./pages/report/report.component').then((component) => component.ReportComponent),

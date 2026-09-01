@@ -7,6 +7,7 @@ import { SidebarComponent } from './sidebar.component';
 
 describe('SidebarComponent role visibility', () => {
   const isAdmin = signal(false);
+  const role = signal<'ADMIN' | 'REPORT_VIEW'>('REPORT_VIEW');
   let fixture: ComponentFixture<SidebarComponent>;
 
   const menuLabels = () =>
@@ -23,6 +24,7 @@ describe('SidebarComponent role visibility', () => {
 
   beforeEach(async () => {
     isAdmin.set(false);
+    role.set('REPORT_VIEW');
     await TestBed.configureTestingModule({
       imports: [SidebarComponent],
       providers: [
@@ -31,6 +33,7 @@ describe('SidebarComponent role visibility', () => {
           provide: AuthService,
           useValue: {
             isAdmin,
+            hasRole: (requiredRole: 'ADMIN' | 'REPORT_VIEW') => role() === requiredRole,
             logout: vi.fn(),
           },
         },
@@ -45,7 +48,19 @@ describe('SidebarComponent role visibility', () => {
     expect(menuLabels()).not.toContain('Dashboard');
   });
 
+  it('shows Client Dashboard only for REPORT_VIEW users', () => {
+    expect(menuLabels()).toContain('Client Dashboard');
+    expect(menuLink('Client Dashboard')?.getAttribute('href')).toBe('/client-dashboard');
+
+    role.set('ADMIN');
+    isAdmin.set(true);
+    fixture.detectChanges();
+
+    expect(menuLabels()).not.toContain('Client Dashboard');
+  });
+
   it('shows Dashboard for ADMIN users with its existing route', () => {
+    role.set('ADMIN');
     isAdmin.set(true);
     fixture.detectChanges();
 
@@ -63,6 +78,7 @@ describe('SidebarComponent role visibility', () => {
     expect(menuLabels()).not.toContain('User Management');
     expect(menuLabels()).not.toContain('About');
 
+    role.set('ADMIN');
     isAdmin.set(true);
     fixture.detectChanges();
 

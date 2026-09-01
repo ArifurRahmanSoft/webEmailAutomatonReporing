@@ -1,0 +1,86 @@
+<section class="client-dashboard-page">
+  <header class="client-dashboard-header">
+    <div>
+      <p class="client-dashboard-header__eyebrow">Email Automation</p>
+      <h1>Client Dashboard</h1>
+    </div>
+
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      [disabled]="isLoading()"
+      (click)="refresh()"
+    >
+      @if (isLoading()) {
+        <mat-progress-spinner diameter="18" mode="indeterminate" />
+      } @else {
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+      }
+      Refresh
+    </button>
+  </header>
+
+  @if (isLoading() && !statistics()) {
+    <app-loading-state label="Loading Client Dashboard data" />
+  } @else if (errorMessage()) {
+    <mat-card class="client-dashboard-error" appearance="outlined">
+      <mat-card-content>
+        <mat-icon aria-hidden="true">error</mat-icon>
+        <p>{{ errorMessage() }}</p>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          [disabled]="isLoading()"
+          (click)="refresh()"
+        >
+          Retry
+        </button>
+      </mat-card-content>
+    </mat-card>
+  } @else if (statistics(); as dashboard) {
+    <div class="client-dashboard-grid" [class.client-dashboard-grid--refreshing]="isLoading()">
+      @for (metric of metrics(); track metric.label) {
+        <mat-card class="client-dashboard-metric" appearance="outlined">
+          <mat-card-content>
+            <mat-icon aria-hidden="true">{{ metric.icon }}</mat-icon>
+            <div>
+              <span>{{ metric.label }}</span>
+              <strong>{{ metric.value }}</strong>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <div class="client-dashboard-details">
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>Campaign Information</mat-card-title>
+          <mat-card-subtitle>{{ dashboard.campaign_count }} campaigns</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (dashboard.campaign_codes.length) {
+            <ul class="campaign-codes" aria-label="Campaign codes">
+              @for (campaignCode of dashboard.campaign_codes; track campaignCode) {
+                <li>{{ campaignCode }}</li>
+              }
+            </ul>
+          } @else {
+            <p>No campaign codes available.</p>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>Last Updated</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="last-updated">{{ dashboard.last_updated | date: 'medium' }}</p>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</section>
